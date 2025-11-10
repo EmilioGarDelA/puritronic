@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model usuarios {
+  id          Int            @id @default(autoincrement())
+  nombre      String         @db.VarChar(150)
+  correo      String?        @unique(map: "correo") @db.VarChar(150)
+  contrasena  String         @db.VarChar(255)
+  rol         Rol?           @default(empleado)
+  activo      Boolean?       @default(true)
+  creado_en   DateTime       @default(now()) @db.Timestamp(0)
+  repartos    asignaciones[] @relation("AsignacionesPorRepartidor")
+  cortes_caja cortes_caja[]
+  ventas      ventas[]
+}
+
+model clientes {
+  id         Int      @id @default(autoincrement())
+  nombre     String   @db.VarChar(150)
+  direccion  String   @db.Text
+  correo     String?  @unique @db.VarChar(150)
+  contrasena String   @db.VarChar(255)
+  telefono   String?  @db.VarChar(30)
+  creado_en  DateTime @default(now()) @db.Timestamp(0)
+  ventas     ventas[]
+}
+
+model productos {
+  id        Int              @id @default(autoincrement())
+  nombre    String           @db.VarChar(100)
+  precio    Decimal          @db.Decimal(10, 2)
+  activo    Boolean?         @default(true)
+  creado_en DateTime         @default(now()) @db.Timestamp(0)
+  detalles  venta_detalles[] @relation("DetallesDeProducto")
+}
+
+model ventas {
+  id                Int      @id @default(autoincrement())
+  codigo            String   @unique
+  canal             String
+  estado            String
+  nombre_cliente    String
+  direccion_cliente String
+  subtotal          Decimal
+  impuestos         Decimal
+  total             Decimal
+  efectivo_recibido Decimal?
+  cambio            Decimal?
+  creado_en         DateTime @default(now())
+
+  cliente    clientes @relation(fields: [cliente_id], references: [id])
+  cliente_id Int
+
+  usuario    usuarios @relation(fields: [usuario_id], references: [id])
+  usuario_id Int
+
+  detalles     venta_detalles[] @relation("DetallesDeVenta") // ✅ relación nombrada
+  asignaciones asignaciones[]   @relation("AsignacionesDeVenta") // ✅ relación nombrada
+}
+
+model venta_detalles {
+  id              Int     @id @default(autoincrement())
+  venta_id        Int
+  producto_id     Int
+  cantidad        Int
+  precio_unitario Decimal
+  total_linea     Decimal
+
+  venta    ventas    @relation("DetallesDeVenta", fields: [venta_id], references: [id]) // ✅ match con arriba
+  producto productos @relation("DetallesDeProducto", fields: [producto_id], references: [id]) // ✅ match con arriba
+}
+
+model asignaciones {
+  id            Int          @id @default(autoincrement())
+  venta_id      Int
+  repartidor_id Int
+  estado        asig_estado? @default(asignado)
+  nota          String?      @db.VarChar(255)
+  creado_en     DateTime     @default(now()) @db.Timestamp(0)
+
+  venta      ventas   @relation("AsignacionesDeVenta", fields: [venta_id], references: [id], onDelete: Cascade)
+  repartidor usuarios @relation("AsignacionesPorRepartidor", fields: [repartidor_id], references: [id])
+
+  @@index([repartidor_id], map: "idx_asig_repartidor")
+  @@index([venta_id], map: "idx_asig_venta")
+}
+
+model cortes_caja {
+  id             Int      @id @default(autoincrement())
+  fecha          DateTime @db.Date
+  usuario_id     Int
+  turno          String?  @db.VarChar(20)
+  total_ventas   Decimal? @default(0.00) @db.Decimal(10, 2)
+  total_efectivo Decimal? @default(0.00) @db.Decimal(10, 2)
+  creado_en      DateTime @default(now()) @db.Timestamp(0)
+
+  usuario usuarios @relation(fields: [usuario_id], references: [id], onUpdate: Restrict, map: "cortes_caja_ibfk_1")
+
+  @@unique([fecha, usuario_id, turno], map: "uniq_fecha_usuario_turno")
+  @@index([fecha], map: "idx_corte_fecha")
+  @@index([usuario_id], map: "usuario_id")
+}
+
+enum Rol {
+  admin
+  empleado
+  repartidor
+  cliente
+}
+
+enum canal {
+  mostrador
+  domicilio
+}
+
+enum estado {
+  pendiente
+  pagado
+  en_reparto
+  entregado
+  cancelado
+}
+
+enum asig_estado {
+  asignado
+  en_ruta
+  entregado
+  fallido
+}

@@ -10,6 +10,10 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { ImageBackground } from "react-native";
+import fondo from "../assets/images/fondo.jpg";
+import React from "react";
 
 const API_URL = "http://localhost:4000";
 
@@ -24,61 +28,61 @@ export default function RegistroCliente() {
   const [err, setErr] = useState<string | null>(null);
 
   const onRegistrar = async () => {
-  setErr(null);
-  setLoading(true);
+    setErr(null);
+    setLoading(true);
 
-  try {
-    if (!nombre || !correo || !contrasena || !direccion) {
-      throw new Error("Completa todos los campos");
+    try {
+      if (!nombre || !correo || !contrasena || !direccion) {
+        throw new Error("Completa todos los campos");
+      }
+
+      const res = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre,
+          correo,
+          contrasena,
+          direccion,
+          telefono,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "No se pudo registrar");
+
+      if (typeof window !== "undefined") {
+        window.alert("Cuenta creada correctamente");
+        router.replace("/cliente");
+      } else {
+        Alert.alert("Registro exitoso", "Tu cuenta fue creada", [
+          { text: "OK", onPress: () => router.replace("/cliente") },
+        ]);
+      }
+    } catch (e: any) {
+      setErr(e?.message || "Error al registrar cliente");
+    } finally {
+      setLoading(false);
     }
-
-    const res = await fetch(`${API_URL}/api/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre, correo, contrasena, direccion, telefono }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data?.error || "No se pudo registrar");
-
-    // ✅ Mensaje de éxito
-    if (typeof window !== "undefined") {
-      // WEB
-      window.alert("¡Bienvenido! 🎉 Tu cuenta se ha creado exitosamente");
-      router.replace("/cliente");
-    } else {
-      // MÓVIL
-      Alert.alert(
-        "¡Bienvenido! 🎉",
-        "Tu cuenta se ha creado exitosamente",
-        [
-          {
-            text: "OK",
-            onPress: () => router.replace("/cliente"),
-          },
-        ],
-        { cancelable: false }
-      );
-    }
-
-  } catch (e: any) {
-    setErr(e?.message || "Error al registrar cliente");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
-    <View style={s.container}>
-      <ScrollView
-        contentContainerStyle={s.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+    <ImageBackground
+  source={fondo}
+  style={s.bg}
+  imageStyle={s.bgImage}  // 🔥 importante
+>
+
+     
+      {/* BOTÓN REGRESAR */}
+      <TouchableOpacity style={s.backButton} onPress={() => router.push("/")}>
+        <Ionicons name="arrow-back" size={28} color="#ffffff" />
+      </TouchableOpacity>
+
+      <ScrollView contentContainerStyle={s.scrollContent}>
         <View style={s.card}>
           <View style={s.header}>
-            <Text style={s.title}>Crear Cuenta</Text>
-            <Text style={s.subtitle}>Únete a nuestra comunidad</Text>
+            <Text style={s.title}>Registrar Cliente</Text>
           </View>
 
           <View style={s.form}>
@@ -88,8 +92,8 @@ export default function RegistroCliente() {
                 style={s.input}
                 value={nombre}
                 onChangeText={setNombre}
-                placeholder="Tu nombre completo"
-                placeholderTextColor="#94a3b8"
+                placeholder="Nombre del cliente"
+                placeholderTextColor="#8fa3b0"
               />
             </View>
 
@@ -100,8 +104,8 @@ export default function RegistroCliente() {
                 value={correo}
                 onChangeText={setCorreo}
                 keyboardType="email-address"
-                placeholder="ejemplo@correo.com"
-                placeholderTextColor="#94a3b8"
+                placeholder="correo@ejemplo.com"
+                placeholderTextColor="#8fa3b0"
                 autoCapitalize="none"
               />
             </View>
@@ -114,7 +118,7 @@ export default function RegistroCliente() {
                 onChangeText={setContrasena}
                 secureTextEntry
                 placeholder="Mínimo 6 caracteres"
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor="#8fa3b0"
               />
             </View>
 
@@ -124,96 +128,167 @@ export default function RegistroCliente() {
                 style={s.input}
                 value={direccion}
                 onChangeText={setDireccion}
-                placeholder="Tu dirección completa"
-                placeholderTextColor="#94a3b8"
+                placeholder="Dirección completa"
+                placeholderTextColor="#8fa3b0"
               />
             </View>
 
             <View style={s.inputGroup}>
-              <Text style={s.label}>
-                Teléfono <Text style={s.optional}>(opcional)</Text>
-              </Text>
+              <Text style={s.label}>Teléfono (opcional)</Text>
               <TextInput
                 style={s.input}
                 value={telefono}
                 onChangeText={setTelefono}
-                placeholder="+52 123 456 7890"
-                placeholderTextColor="#94a3b8"
                 keyboardType="phone-pad"
+                placeholder="123 456 7890"
+                placeholderTextColor="#8fa3b0"
               />
             </View>
 
-            {err ? (
+            {err && (
               <View style={s.errorContainer}>
-                <Text style={s.errorIcon}>⚠️</Text>
+                <Ionicons name="alert-circle" size={20} color="#b91c1c" />
                 <Text style={s.error}>{err}</Text>
               </View>
-            ) : null}
+            )}
 
             <TouchableOpacity
               style={[s.btn, loading && s.btnDisabled]}
               onPress={onRegistrar}
               disabled={loading}
-              activeOpacity={0.8}
             >
               <Text style={s.btnText}>
-                {loading ? "Creando cuenta..." : "Crear cuenta"}
+                {loading ? "Creando..." : "Registrar"}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={s.linkButton}
-              onPress={() => router.replace("/login")}  // Cambiado de "/" a "/login"
+              onPress={() => router.replace("/login")}
             >
               <Text style={s.linkText}>
-                ¿Ya tienes cuenta? <Text style={s.linkTextBold}>Iniciar sesión</Text>
+                ¿Ya tienes cuenta?{" "}
+                <Text style={s.linkTextBold}>Iniciar sesión</Text>
               </Text>
             </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
-    </View>
+    </ImageBackground>
+
   );
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f6f7fb" },
-  scrollContent: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20 },
+  
+
+  bgImage: {
+  width: "120%",   // hazla más o menos grande
+  height: "120%",  // puedes bajar a 120% si la quieres más compacta
+  alignSelf: "center",
+},
+
+
+
+  container: {
+    flex: 1,
+    backgroundColor: "#1d4e89",
+  },
+
+  backButton: {
+    position: "absolute",
+    top: 45,
+    left: 18,
+    zIndex: 20,
+    padding: 4,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+    paddingTop: 80,
+  },
+
   card: {
     backgroundColor: "#ffffff",
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 12,
+    padding: 16,
     width: "100%",
-    maxWidth: 350,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    maxWidth: 340,        // más pequeño
+    elevation: 3,
   },
-  header: { alignItems: "center", marginBottom: 20 },
-  title: { fontSize: 20, fontWeight: "800", color: "#0f172a", marginBottom: 4 },
-  subtitle: { fontSize: 13, color: "#64748b", fontWeight: "500" },
+
+  header: { alignItems: "center", marginBottom: 10 },
+
+  title: {
+    fontSize: 20,         // más pequeño
+    fontWeight: "800",
+    color: "#1d4e89",
+  },
+
   form: { width: "100%" },
-  inputGroup: { marginBottom: 14 },
-  label: { fontSize: 13, fontWeight: "600", color: "#334155", marginBottom: 6 },
-  optional: { fontSize: 12, fontWeight: "400", color: "#94a3b8" },
+
+  inputGroup: {
+    marginBottom: 10,     // reduje separación
+  },
+
+  label: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#1e293b",
+    marginBottom: 4,
+  },
+
   input: {
     borderRadius: 8,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f1f5f9",
     borderWidth: 1,
-    borderColor: "#e2e8f0",
-    padding: 12,
-    fontSize: 15,
+    borderColor: "#cfd9e0",
+    paddingVertical: 8,    // antes 12 → compacto
+    paddingHorizontal: 10,
+    fontSize: 14,
     color: "#0f172a",
   },
-  errorContainer: { flexDirection: "row", alignItems: "center", backgroundColor: "#fef2f2", borderRadius: 8, padding: 10, marginBottom: 14, borderLeftWidth: 3, borderLeftColor: "#ef4444" },
-  errorIcon: { marginRight: 6, fontSize: 14 },
-  error: { color: "#dc2626", fontSize: 13, fontWeight: "600", flex: 1 },
-  btn: { borderRadius: 8, marginBottom: 14, backgroundColor: "#0f172a", paddingVertical: 14, alignItems: "center" },
-  btnDisabled: { backgroundColor: "#64748b", opacity: 0.7 },
-  btnText: { color: "#ffffff", fontSize: 15, fontWeight: "700" },
-  linkButton: { alignItems: "center", paddingVertical: 10 },
-  linkText: { fontSize: 13, color: "#64748b" },
-  linkTextBold: { fontWeight: "700", color: "#0f172a" },
+
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fee2e2",
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#ef4444",
+    gap: 6,
+  },
+
+  error: {
+    color: "#b91c1c",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  btn: {
+    borderRadius: 8,
+    backgroundImage: "#1d4e89",
+    paddingVertical: 12,    // antes 14
+    alignItems: "center",
+    marginTop: 5,
+  },
+
+  btnDisabled: { opacity: 0.6 },
+
+  btnText: {
+    color: "#ffffff",
+    fontSize: 15,           // antes 16
+    fontWeight: "800",
+  },
+
+  linkButton: { alignItems: "center", marginTop: 10 },
+
+  linkText: { fontSize: 13, color: "#6b7280" },
+
+  linkTextBold: { fontWeight: "700", color: "#1d4e89" },
 });

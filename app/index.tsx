@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Animatable from 'react-native-animatable';
+import React from 'react';
 
 const { width } = Dimensions.get('window');
 
@@ -53,6 +54,28 @@ export default function PagPrin() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f4f6f8' }}>
       <ScrollView contentContainerStyle={s.container}>
+
+        {/* NAVBAR */}
+        <View style={s.navbar}>
+          <Text style={s.navTitle}>Puritronic</Text>
+
+          <View style={s.navButtons}>
+            <TouchableOpacity
+              style={s.navLogin}
+              onPress={() => router.push('/login')}
+            >
+              <Text style={s.navLoginText}>Iniciar Sesión</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={s.navRegister}
+              onPress={() => router.push('/registro')}
+            >
+              <Text style={s.navRegisterText}>Crear Cuenta</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* HEADER */}
         <View style={s.header}>
           <Text style={s.title}>Puritronic</Text>
@@ -76,7 +99,7 @@ export default function PagPrin() {
                 <Image
                   source={item.image}
                   style={s.cardImage}
-                  resizeMode="contain" // 👈 evita cortes
+                  resizeMode="contain"
                 />
                 <View style={s.cardContent}>
                   <Text style={s.cardTitle}>{item.title}</Text>
@@ -108,6 +131,24 @@ export default function PagPrin() {
           </TouchableOpacity>
         </View>
 
+                {/* FOOTER: LOCACIÓN */}
+        <View style={s.locationContainer}>
+          <Text style={s.locationTitle}>📍 Locación</Text>
+          <Text style={s.locationText}>
+            Calle 5 223-C, Fracc. Popular, Pabellón de Arteaga
+          </Text>
+        </View>
+
+        {/* DERECHOS RESERVADOS */}
+        <View style={s.footer}>
+          <Text style={s.footerText}>
+            © {new Date().getFullYear()} Puritronic. Todos los derechos reservados.
+          </Text>
+        </View>
+
+        <View style={{ height: 60 }} />
+
+
         <View style={{ height: 60 }} />
       </ScrollView>
     </SafeAreaView>
@@ -120,6 +161,88 @@ const s = StyleSheet.create({
     backgroundColor: '#f4f6f8',
     alignItems: 'center',
   },
+
+  /* NAVBAR */
+  navbar: {
+    width: '100%',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    backgroundColor: '#0d4fa1',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    borderRadius: 10,
+  },
+  navTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#fff',
+  },
+  navButtons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  navLogin: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+  },
+  navLoginText: {
+    color: '#0d4fa1',
+    fontWeight: '700',
+  },
+  navRegister: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#ff4d4f',
+    borderRadius: 8,
+  },
+  navRegisterText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+
+  /* RESTO DE ESTILOS */
+
+    locationContainer: {
+    marginTop: 20,
+    marginBottom: 5,
+    width: "90%",
+    paddingVertical: 15,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    elevation: 3,
+    alignItems: "center",
+    alignSelf: "center",
+  },
+  locationTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#0d4fa1",
+    marginBottom: 5,
+  },
+  locationText: {
+    fontSize: 14,
+    color: "#334155",
+    textAlign: "center",
+    paddingHorizontal: 10,
+  },
+
+  footer: {
+    marginTop: 10,
+    marginBottom: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  footerText: {
+    fontSize: 13,
+    color: "#64748b",
+    textAlign: "center",
+    marginTop: 10,
+  },
+
   header: {
     alignItems: 'center',
     marginBottom: 35,
@@ -155,34 +278,41 @@ const s = StyleSheet.create({
     width: '94%',
     marginBottom: 40,
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    overflow: 'hidden',
-    elevation: 4,
-    shadowColor: '#0d4fa1',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.18,
-    shadowRadius: 6,
-    marginBottom: 18,
-    width: (width * 0.9) / 2 - 10,
-    alignItems: 'center',
-    transform: [{ scale: 1 }],
-  },
-  cardImage: {
-    width: '100%',
-    aspectRatio: 1.25,
-    backgroundColor: '#f1f5f9',
-  },
-  cardContent: {
-    padding: 14,
-    alignItems: 'center',
-  },
+grid: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  columnGap: 16,
+  rowGap: 20,
+},
+
+card: {
+  backgroundColor: "#fff",
+  borderRadius: 16,
+  overflow: "hidden",
+  elevation: 4,
+  shadowColor: "#0d4fa1",
+  shadowOffset: { width: 0, height: 3 },
+  shadowOpacity: 0.18,
+  shadowRadius: 6,
+  marginBottom: 18,
+  width: width * 0.28,       // 👈 3 tarjetas por fila
+  height: 260,               // 👈 altura uniforme
+  alignItems: "center",
+},
+
+cardImage: {
+  width: "100%",
+  height: 120,      // 👈 imágenes más grandes y uniformes
+  resizeMode: "cover",
+  backgroundColor: "#f1f5f9",
+},
+
+cardContent: {
+  padding: 10,
+  alignItems: 'center',
+},
+
   cardTitle: {
     fontSize: 17,
     fontWeight: '700',

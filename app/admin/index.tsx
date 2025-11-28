@@ -1,294 +1,405 @@
-import { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, FlatList } from "react-native";
 import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+
+// 🔹 Componente Card reutilizable
+const Card = ({ title, full, children }: { title: string; full?: boolean; children: React.ReactNode }) => (
+  <View style={[s.card, full && s.cardFull]}>
+    <Text style={s.cardTitle}>{title}</Text>
+    {children}
+  </View>
+);
+
 
 export default function AdminHome() {
   const router = useRouter();
   const [ventas, setVentas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const onLogout = () => {
-    router.replace("/");
-  };
+  const onLogout = () => router.replace("/");
 
-  useEffect(() => {
-    // Simulación local de ventas
-    const fakeVentas = [
-      {
-        id: 1,
-        codigo: "V001",
-        nombre_cliente: "María López",
-        canal: "Sucursal",
-        estado: "Completada",
-        cantidad: 2,
-        producto: "Garrafón 20L",
-        total: 50,
-        creado_en: "2025-11-09T10:23:00",
-      },
-      {
-        id: 2,
-        codigo: "V002",
-        nombre_cliente: "Carlos Gómez",
-        canal: "Domicilio",
-        estado: "Entregada",
-        cantidad: 4,
-        producto: "Garrafón 20L",
-        total: 100,
-        creado_en: "2025-11-09T11:45:00",
-      },
-      {
-        id: 3,
-        codigo: "V003",
-        nombre_cliente: "Juan Pérez",
-        canal: "Sucursal",
-        estado: "Completada",
-        cantidad: 1,
-        producto: "Garrafón 20L",
-        total: 25,
-        creado_en: "2025-11-09T12:10:00",
-      },
-      {
-        id: 4,
-        codigo: "V004",
-        nombre_cliente: "Lucía Ramírez",
-        canal: "Domicilio",
-        estado: "Pendiente",
-        cantidad: 3,
-        producto: "Garrafón 20L",
-        total: 75,
-        creado_en: "2025-11-09T13:20:00",
-      },
-      {
-        id: 5,
-        codigo: "V005",
-        nombre_cliente: "José Martínez",
-        canal: "Sucursal",
-        estado: "Completada",
-        cantidad: 5,
-        producto: "Garrafón 20L",
-        total: 125,
-        creado_en: "2025-11-09T14:05:00",
-      },
-    ];
+   useEffect(() => {
+  const fakeVentas = [
+    {
+      id: 12,
+      codigo: "V001",
+      canal: "Domicilio",
+      estado: "Entregado",
+      nombre_cliente: "Juan Pérez",
+      direccion: "Calle Falsa 123",
+      producto: "Garrafón 20L",
+      cantidad: 1,
+      total: 50,
+      creado_en: "2025-11-06T09:15:00",
+    },
+    {
+      id: 13,
+      codigo: "V002",
+      canal: "Sucursal",
+      estado: "Entregado",
+      nombre_cliente: "Juan Pérez",
+      direccion: "Calle Falsa 123",
+      producto: "Garrafón 20L",
+      cantidad: 1,
+      total: 25,
+      creado_en: "2025-11-08T16:40:00",
+    },
+    {
+      id: 17,
+      codigo: "V003",
+      canal: "Sucursal",
+      estado: "Entregado",
+      nombre_cliente: "María López",
+      direccion: "Av. Central 12",
+      producto: "Garrafón 20L",
+      cantidad: 1,
+      total: 50,
+      creado_en: "2025-11-09T10:23:00",
+    },
+    {
+      id: 18,
+      codigo: "V004",
+      canal: "Domicilio",
+      estado: "Entregado",
+      nombre_cliente: "Carlos Gómez",
+      direccion: "Calle Norte 55",
+      producto: "Garrafón 20L",
+      cantidad: 1,
+      total: 100,
+      creado_en: "2025-11-09T11:45:00",
+    },
+    {
+      id: 19,
+      codigo: "V005",
+      canal: "Domicilio",
+      estado: "Pendiente",
+      nombre_cliente: "Lucía Ramírez",
+      direccion: "Calle 5 de Mayo 40",
+      producto: "Garrafón 20L",
+      cantidad: 1,
+      total: 75,
+      creado_en: "2025-11-09T13:20:00",
+    },
+    {
+      id: 20,
+      codigo: "V006",
+      canal: "Sucursal",
+      estado: "Entregado",
+      nombre_cliente: "José Martínez",
+      direccion: "Av. Reforma 88",
+      producto: "Garrafón 20L",
+      cantidad: 1,
+      total: 125,
+      creado_en: "2025-11-09T14:05:00",
+    },
+    {
+      id: 14,
+      codigo: "V007",
+      canal: "Domicilio",
+      estado: "Pendiente",
+      nombre_cliente: "Juan Pérez",
+      direccion: "Calle Falsa 123",
+      producto: "Garrafón 20L",
+      cantidad: 1,
+      total: 75,
+      creado_en: "2025-11-11T11:05:00",
+    },
+    {
+      id: 15,
+      codigo: "V008",
+      canal: "Sucursal",
+      estado: "Pendiente",
+      nombre_cliente: "Juan Pérez",
+      direccion: "Calle Falsa 123",
+      producto: "Garrafón 20L",
+      cantidad: 1,
+      total: 100,
+      creado_en: "2025-11-14T13:52:00",
+    },
+    {
+      id: 16,
+      codigo: "V009",
+      canal: "Domicilio",
+      estado: "Cancelado",
+      nombre_cliente: "Juan Pérez",
+      direccion: "Calle Falsa 123",
+      producto: "Garrafón 20L",
+      cantidad: 1,
+      total: 50,
+      creado_en: "2025-11-18T08:30:00",
+    },
+  ];
 
-    // Simulación de carga
-    setTimeout(() => {
-      setVentas(fakeVentas);
-      setLoading(false);
-    }, 1500);
-  }, []);
+  setTimeout(() => {
+    setVentas(fakeVentas);
+    setLoading(false);
+  }, 1500);
+}, []);
+
 
   const totalVentas = ventas.reduce((acc, v) => acc + v.total, 0);
   const totalGarrafones = ventas.reduce((acc, v) => acc + v.cantidad, 0);
   const litrosPurificados = totalGarrafones * 20;
 
+  const renderVenta = ({ item }: { item: any }) => (
+  <View
+    style={[
+      s.ventaItem,
+      item.estado === "Entregado"
+        ? s.ventaEntregado
+        : item.estado === "Pendiente"
+        ? s.ventaPendiente
+        : s.ventaCancelado,
+    ]}
+  >
+    <Text style={s.ventaItemTitle}>#{item.codigo}</Text>
+    <Text style={s.ventaItemText}>{item.nombre_cliente}</Text>
+    <Text style={s.ventaItemText}>Producto: {item.producto}</Text>
+    <Text style={s.ventaItemText}>{item.cantidad} pz</Text>
+    <Text style={s.ventaItemText}>Canal: {item.canal}</Text>
+    <Text style={s.ventaItemText}>Estado: {item.estado}</Text>
+    <Text style={s.ventaItemText}>Total: ${item.total}</Text>
+    <Text style={s.ventaItemText}>
+      Fecha: {new Date(item.creado_en).toLocaleString()}
+    </Text>
+  </View>
+);
+
   return (
     <ScrollView style={s.screen}>
-      {/* Appbar */}
-      <View style={s.appbar}>
-        <Text style={s.appTitle}>Panel de Administración</Text>
-        <TouchableOpacity onPress={onLogout} style={s.appBtn}>
-          <Text style={s.appBtnTx}>Salir</Text>
-        </TouchableOpacity>
-      </View>
-
       {/* Body */}
-      <View style={s.body}>
-        <Text style={s.h}>Bienvenido al panel de la Purificadora</Text>
+<View style={s.body}>
 
-        {/* Resumen general */}
-        <View style={s.cardSummary}>
-          <Text style={s.cardSummaryTx}>
-            💧 Ventas de hoy: {ventas.length}
-          </Text>
-          <Text style={s.cardSummaryTx}>
-            🧃 Garrafones vendidos: {totalGarrafones}
-          </Text>
-          <Text style={s.cardSummaryTx}>
-            💵 Ingreso total: ${totalVentas}
-          </Text>
-          <Text style={s.cardSummaryTx}>
-            🚰 Litros purificados: {litrosPurificados}L
-          </Text>
-        </View>
+  {/* Título + Botón en la misma fila */}
+<View style={{ 
+  flexDirection: "row", 
+  alignItems: "center", 
+  justifyContent: "space-between",
+  width: "100%",
+  paddingHorizontal: 10,
+  marginBottom: 10
+}}>
+  <Text style={s.h}>Bienvenido al panel de la Purificadora</Text>
 
-        {/* Ventas */}
-        <View style={s.card}>
-          <Text style={s.cardTitle}>📋 Ventas registradas</Text>
-          <Text style={s.cardText}>
-            Detalle de las últimas operaciones realizadas:
-          </Text>
+  <TouchableOpacity
+    style={{
+      backgroundColor: "#007AFF",
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      borderRadius: 8
+    }}
+    onPress={() => router.push("/")}
+  >
+    <Text style={{ color: "#fff", fontWeight: "bold" }}>Inicio</Text>
+  </TouchableOpacity>
+</View>
 
-          {loading && <ActivityIndicator size="large" color="#0d4fa1" />}
 
-          {!loading &&
-            ventas.map((v) => (
-              <View key={v.id} style={s.ventaItem}>
-                <Text style={s.ventaTitle}>
-                  #{v.codigo} - {v.nombre_cliente}
-                </Text>
-                <Text style={s.ventaText}>
-                  Producto: {v.producto} ({v.cantidad} pz)
-                </Text>
-                <Text style={s.ventaText}>
-                  Canal: {v.canal} | Estado: {v.estado}
-                </Text>
-                <Text style={s.ventaText}>Total: ${v.total}</Text>
-                <Text style={s.ventaText}>
-                  Fecha: {new Date(v.creado_en).toLocaleString()}
-                </Text>
-              </View>
-            ))}
-        </View>
+  {/* Resumen azul en una sola fila y centrado */}
+<View
+  style={[
+    s.cardSummary,
+    {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      flexWrap: "wrap",
+    },
+  ]}
+>
+  <Text style={s.cardSummaryTx}>💧 Ventas de hoy: {ventas.length}</Text>
+  <Text style={s.cardSummaryTx}> | </Text>
 
-        {/* Inventario */}
-        <View style={s.card}>
-          <Text style={s.cardTitle}>📦 Inventario</Text>
-          <Text style={s.cardText}>Garrafones disponibles: 150</Text>
-          <Text style={s.cardText}>Tapas y etiquetas: 500 unidades</Text>
-          <Text style={s.cardText}>Botellas 1L: 320 unidades</Text>
-        </View>
+  <Text style={s.cardSummaryTx}>🧃 Garrafones vendidos: {totalGarrafones}</Text>
+  <Text style={s.cardSummaryTx}> | </Text>
 
-        {/* Mantenimiento */}
-        <View style={s.card}>
-          <Text style={s.cardTitle}>⚙️ Mantenimiento</Text>
-          <Text style={s.cardText}>
-            Último mantenimiento: 02/11/2025
-          </Text>
-          <Text style={s.cardText}>
-            Próximo mantenimiento programado: 16/11/2025
-          </Text>
-        </View>
+  <Text style={s.cardSummaryTx}>💵 Ingreso total: ${totalVentas}</Text>
+  <Text style={s.cardSummaryTx}> | </Text>
 
-        {/* Pedidos */}
-        <View style={s.card}>
-          <Text style={s.cardTitle}>🚚 Pedidos en curso</Text>
-          <Text style={s.cardText}>
-            1 pedido pendiente de entrega (Lucía Ramírez).
-          </Text>
-        </View>
+  <Text style={s.cardSummaryTx}>🚰 Litros purificados: {litrosPurificados}L</Text>
+</View>
 
-        {/* Reportes */}
-        <View style={s.card}>
-          <Text style={s.cardTitle}>📊 Reportes</Text>
-          <Text style={s.cardText}>
-            Genera reportes de ventas, ingresos y rendimiento semanal.
-          </Text>
-        </View>
 
-        {/* Usuarios */}
-        <View style={s.card}>
-          <Text style={s.cardTitle}>👥 Usuarios del sistema</Text>
-          <Text style={s.cardText}>
-            - Admin principal: admin@puritronic.com{"\n"}
-            - Empleados activos: 3
-          </Text>
-        </View>
+  {/* VENTAS (NO VA EN GRID) */}
+  <Card title="📋 Ventas registradas" full>
 
-        {/* Auditoría */}
-        <View style={s.card}>
-          <Text style={s.cardTitle}>🧾 Auditoría</Text>
-          <Text style={s.cardText}>
-            Registro automático de todas las ventas, accesos y cambios en
-            precios.
-          </Text>
-        </View>
-      </View>
+    {loading ? (
+      <ActivityIndicator size="large" color="#0d4fa1" />
+    ) : (
+      <FlatList
+      data={ventas}
+      renderItem={renderVenta}
+      keyExtractor={(item) => item.codigo}
+      numColumns={3}
+      columnWrapperStyle={{
+        justifyContent: "space-between",
+        paddingHorizontal: 6,
+      }}
+      contentContainerStyle={{ paddingTop: 10 }}
+    />
+
+    )}
+  </Card>
+
+  {/* GRID de tarjetas pequeñas */}
+  <View style={s.grid}>
+
+    <Card title="📦 Inventario">
+      <Text style={s.cardText}>Garrafones disponibles: 150</Text>
+      <Text style={s.cardText}>Tapas y etiquetas: 500 unidades</Text>
+      <Text style={s.cardText}>Botellas 1L: 320 unidades</Text>
+    </Card>
+
+    <Card title="⚙️ Mantenimiento">
+      <Text style={s.cardText}>Último mantenimiento: 02/11/2025</Text>
+      <Text style={s.cardText}>Próximo mantenimiento: 16/11/2025</Text>
+    </Card>
+
+    <Card title="🚚 Pedidos en curso">
+      <Text style={s.cardText}>1 pedido pendiente de entrega (Lucía Ramírez).</Text>
+    </Card>
+
+    <Card title="📊 Reportes">
+      <Text style={s.cardText}>Genera reportes de ventas, ingresos y rendimiento semanal.</Text>
+    </Card>
+
+    <Card title="👥 Usuarios del sistema">
+      <Text style={s.cardText}>
+        • Admin: admin@puritronic.com{"\n"}
+        • Empleados activos: 3
+      </Text>
+    </Card>
+
+    <Card title="🧾 Auditoría">
+      <Text style={s.cardText}>Registro de ventas, accesos y cambios de precios.</Text>
+    </Card>
+
+  </View>
+
+  
+
+</View>
+
     </ScrollView>
   );
 }
 
 const s = StyleSheet.create({
+
+  cardFull: {
+  width: "100%",        // Ocupa TODO el ancho, como el resumen azul
+  marginVertical: 6,
+},
+
   screen: {
     flex: 1,
-    backgroundColor: "#f6f7fb",
+    backgroundColor: "#eef2f7",
   },
-  appbar: {
-    height: 56,
-    backgroundColor: "#0f172a",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-  },
-  appTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "800",
-  },
-  appBtn: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: "#1f2b4c",
-    borderRadius: 8,
-  },
-  appBtnTx: {
-    color: "#fff",
-    fontWeight: "700",
-  },
+
   body: {
-    padding: 16,
-    paddingTop: 20,
+    paddingHorizontal: 12,
+    paddingTop: 14,
+    gap: 12,
   },
+
   h: {
     fontSize: 22,
-    fontWeight: "800",
-    color: "#111827",
-    marginBottom: 12,
+    fontWeight: "900",
+    color: "#0f172a",
+    marginBottom: -2,
   },
-  card: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 10,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#0d4fa1",
-    marginBottom: 8,
-  },
-  cardText: {
-    fontSize: 14,
-    color: "#334155",
-  },
-  ventaItem: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: "#f1f5f9",
-    borderRadius: 8,
-  },
-  ventaTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#0d4fa1",
-  },
-  ventaText: {
-    fontSize: 14,
-    color: "#334155",
-  },
+
+  /* ----------------------------- RESUMEN AZUL ----------------------------- */
   cardSummary: {
     backgroundColor: "#0d4fa1",
-    padding: 16,
+    padding: 18,
     borderRadius: 16,
-    marginBottom: 16,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#0b3d82",
   },
+
   cardSummaryTx: {
     color: "#fff",
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
+  },
+
+  /* ----------------------------- TARJETAS GENERALES ----------------------------- */
+  card: {
+    width: "32%",
+    backgroundColor: "#fff",
+    padding: 14,
+    borderRadius: 14,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#0d4fa1",
+    marginBottom: 6,
+  },
+
+  cardText: {
+    fontSize: 14,
+    color: "#475569",
+    lineHeight: 18,
+  },
+
+  /* ----------------------------- GRID DE TARJETAS ----------------------------- */
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    paddingHorizontal: 4,
+    paddingTop: 10,
+    gap: 12,
+  },
+
+  /* ----------------------------- TARJETAS DE VENTAS ----------------------------- */
+  ventaItem: {
+    width: "31%",          // Ajuste perfecto para 3 columnas
+    borderRadius: 12,
+    padding: 10,
+    borderWidth: 1,
+    backgroundColor: "#fff",
+    marginBottom: 12,
+  },
+
+  ventaItemTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    marginBottom: 4,
+    color: "#0d4fa1",
+  },
+
+  ventaItemText: {
+    fontSize: 13,
+    marginBottom: 2,
+    color: "#334155",
+  },
+
+  /* Estados de venta */
+  ventaEntregado: {
+    backgroundColor: "#dcfce7",
+    borderColor: "#22c55e",
+  },
+
+  ventaPendiente: {
+    backgroundColor: "#fef9c3",
+    borderColor: "#eab308",
+  },
+
+  ventaCancelado: {
+    backgroundColor: "#fee2e2",
+    borderColor: "#ef4444",
   },
 });
